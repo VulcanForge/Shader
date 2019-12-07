@@ -1,405 +1,420 @@
 #pragma once
-#pragma warning (disable:4251)
 
-#ifdef SHADER_EXPORTS
-#define SHADER_API __declspec(dllexport)
+#include <string>
+#include <vector>
+
+#include <GL/glew.h>
+
+#include <glm/glm.hpp>
+
+#ifdef SHADERPROGRAM_EXPORTS
+#define SHADERPROGRAM_API __declspec(dllexport)
 #else
-#define SHADER_API __declspec(dllimport)
+#define SHADERPROGRAM_API __declspec(dllimport)
 #endif
 
-typedef std::pair<std::string, int> Uniform;
-
-///<summary>
-///Represents a GLSL shader program.
-///</summary>
-class SHADER_API ShaderProgram
+/// <summary>
+/// Encapsulates a GLSL shader program.
+/// </summary>
+class SHADERPROGRAM_API ShaderProgram
 {
 private:
-    unsigned int programID = -1;
-    unsigned int vertexShaderID = -1;
-    unsigned int geometryShaderID = -1;
-    unsigned int fragmentShaderID = -1;
+    GLuint programID;
+    GLuint vertexShaderID;
+    GLuint geometryShaderID;
+    GLuint fragmentShaderID;
 
     std::string programName;
-    std::string vertexFileName;
-    std::string geometryFileName;
-    std::string fragmentFileName;
+    std::string vertexFilename;
+    std::string geometryFilename;
+    std::string fragmentFilename;
 
-    std::unordered_map<std::string, int> uniformMap;
-
-    void LoadSource (int shaderID, const std::string& fileName) const;
-    void CompileSource (int shaderID, const std::string& fileName) const;
+    void LoadSource (GLuint shaderID, const std::string& filename) const;
+    void CompileSource (GLuint shaderID, const std::string& filename) const;
     void LinkBasicShaderProgram () const;
     void LinkShaderProgramWithGeometry () const;
 
 public:
     ~ShaderProgram ();
 
-    ///<summary>
-    ///Creates a shader program with vertex and fragment shaders.
-    ///</summary>
-    ///<param name="programName">
-    ///The name of the program.
-    ///The vertex shader file should be named <c>programName + ".vert"</c> and the fragment shader file should be 
-    ///named <c>programName + ".frag"</c>.
-    ///</param>
-    static ShaderProgram* CreateBasicShaderProgram (const std::string& programName);
+#pragma region Factory Constructors
 
-    ///<summary>
-    ///Creates a shader program with vertex and fragment shaders, with custom filenames.
-    ///</summary>
-    ///<param name="programName">The name of the program.</param>
-    ///<param name="vertexFileName">The vertex shader file.</param>
-    ///<param name="fragmentFileName">The fragment shader file.</param>
-    static ShaderProgram* CreateBasicShaderProgramWithNames
-    (
-        const std::string& programName,
-        const std::string& vertexFileName,
-        const std::string& fragmentFileName
-    );
+    /// <summary>
+    /// Creates a shader program with vertex and fragment shaders.
+    /// </summary>
+    /// <param name="programName">
+    /// The name of the program. The vertex shader file should be named programName + ".vert" and the fragment shader file should be named programName + ".frag".
+    /// </param>
+    static ShaderProgram CreateBasicShaderProgram (const std::string& programName);
 
-    ///<summary>
-    ///Creates a shader program with vertex, geometry, and fragment shaders.
-    ///</summary>
-    ///<param name="programName">
-    ///The name of the program.
-    ///The vertex shader file should be named <c>programName + ".vert"</c>, the geometry shader file should be 
-    ///named <c>programName + ".geom</c>, and the fragment shader file should be named <c>programName + ".frag"</c>.
-    ///</param>
-    static ShaderProgram* CreateShaderProgramWithGeometry (const std::string& programName);
+    /// <summary>
+    /// Creates a shader program with vertex and fragment shaders, with custom filenames.
+    /// </summary>
+    /// <param name="programName">The name of the program.</param>
+    /// <param name="vertexFilename">The vertex shader file.</param>
+    /// <param name="fragmentFilename">The fragment shader file.</param>
+    static ShaderProgram CreateBasicShaderProgramWithNames (const std::string& programName, const std::string& vertexFilename, const std::string& fragmentFilename);
 
-    ///<summary>
-    ///Creates a shader program with vertex, geometry, and fragment shaders, with custom filenames.
-    ///</summary>
-    ///<param name="programName">The name of the program.</param>
-    ///<param name="vertexFileName">The vertex shader file.</param>
-    ///<param name="geometryFileName">The geometry shader file.</param>
-    ///<param name="fragmentFileName">The fragment shader file.</param>
-    static ShaderProgram* CreateShaderProgramWithGeometryWithNames
-    (
-        const std::string& programName,
-        const std::string& vertexFileName,
-        const std::string& geometryFileName,
-        const std::string& fragmentFileName
-    );
+    /// <summary>
+    /// Creates a shader program with vertex, geometry, and fragment shaders.
+    /// </summary>
+    /// <param name="programName">
+    /// The name of the program. The vertex shader file should be named programName + ".vert", the geometry shader file should be  named programName + ".geom, and the fragment shader file should be named programName + ".frag".
+    /// </param>
+    static ShaderProgram CreateShaderProgramWithGeometry (const std::string& programName);
 
-    ///<summary>
-    ///Returns the program name.
-    ///</summary>
-    std::string ProgramName () const;
+    /// <summary>
+    /// Creates a shader program with vertex, geometry, and fragment shaders, with custom filenames.
+    /// </summary>
+    /// <param name="programName">The name of the program.</param>
+    /// <param name="vertexFilename">The vertex shader file.</param>
+    /// <param name="geometryFilename">The geometry shader file.</param>
+    /// <param name="fragmentFilename">The fragment shader file.</param>
+    static ShaderProgram CreateShaderProgramWithGeometryWithNames (const std::string& programName, const std::string& vertexFilename, const std::string& geometryFilename, const std::string& fragmentFilename);
 
-    ///<summary>
-    ///Returns the program GL ID.
-    ///</summary>
-    unsigned int ProgramID () const;
+#pragma endregion
 
-    ///<summary>
-    ///Returns a list of uniforms in the program.
-    ///</summary>
-    std::vector<Uniform> UniformList () const;
+    /// <summary>
+    /// Returns the GL location of a uniform in the program.
+    /// </summary>
+    /// <param name="uniformName">The name of the uniform as it appears in the shader code.</param>
+    GLint GetUniformLocation (const std::string& uniformName) const;
 
-    ///<summary>
-    ///Returns the GL location of a uniform in the program.
-    ///</summary>
-    ///<param name="uniformName">The name of the uniform as it appears in the shader code.</param>
-    int GetUniformLocation (const std::string& uniformName);
+#pragma region Float / Vec Uniform Setters
 
-    ///<summary>
-    ///Sets a boolean uniform in the program.
-    ///</summary>
-    ///<param name="uniformName">The name of the uniform as it appears in the shader code.</param>
-    ///<param name="value">The value to pass to the uniform.</param>
-    void SetUniformBool (const std::string& uniformName, bool value);
+    /// <summary>
+    /// Sets a floating-point uniform in the program.
+    /// </summary>
+    /// <param name="uniformName">The name of the uniform as it appears in the shader code.</param>
+    /// <param name="value">The value to pass to the uniform.</param>
+    void SetUniformFloat (const std::string& uniformName, GLfloat value) const;
 
-    ///<summary>
-    ///Sets a <c>bvec2</c> uniform in the program.
-    ///</summary>
-    ///<param name="uniformName">The name of the uniform as it appears in the shader code.</param>
-    ///<param name="value">The value to pass to the uniform.</param>
-    void SetUniformBVec2 (const std::string& uniformName, const glm::bvec2& value);
+    /// <summary>
+    /// Sets a vec2 uniform in the program.
+    /// </summary>
+    /// <param name="uniformName">The name of the uniform as it appears in the shader code.</param>
+    /// <param name="vector">The vector to pass to the uniform.</param>
+    void SetUniformVec2 (const std::string& uniformName, const glm::vec2& vector) const;
 
-    ///<summary>
-    ///Sets a <c>bvec3</c> uniform in the program.
-    ///</summary>
-    ///<param name="uniformName">The name of the uniform as it appears in the shader code.</param>
-    ///<param name="value">The value to pass to the uniform.</param>
-    void SetUniformBVec3 (const std::string& uniformName, const glm::bvec3& value);
+    /// <summary>
+    /// Sets a vec3 uniform in the program.
+    /// </summary>
+    /// <param name="uniformName">The name of the uniform as it appears in the shader code.</param>
+    /// <param name="vector">The vector to pass to the uniform.</param>
+    void SetUniformVec3 (const std::string& uniformName, const glm::vec3& vector) const;
 
-    ///<summary>
-    ///Sets a <c>bvec4</c> uniform in the program.
-    ///</summary>
-    ///<param name="uniformName">The name of the uniform as it appears in the shader code.</param>
-    ///<param name="value">The value to pass to the uniform.</param>
-    void SetUniformBVec4 (const std::string& uniformName, const glm::bvec4& value);
+    /// <summary>
+    /// Sets a vec4 uniform in the program.
+    /// </summary>
+    /// <param name="uniformName">The name of the uniform as it appears in the shader code.</param>
+    /// <param name="vector">The vector to pass to the uniform.</param>
+    void SetUniformVec4 (const std::string& uniformName, const glm::vec4& vector) const;
 
-    ///<summary>
-    ///Sets a boolean array uniform in the program.
-    ///</summary>
-    ///<param name="uniformName">The name of the uniform as it appears in the shader code.</param>
-    ///<param name="values">The array to pass to the uniform.</param>
-    void SetUniformBoolArray (const std::string& uniformName, int count, const bool* values);
+#pragma endregion
 
-    ///<summary>
-    ///Sets a <c>bvec2</c> array uniform in the program.
-    ///</summary>
-    ///<param name="uniformName">The name of the uniform as it appears in the shader code.</param>
-    ///<param name="values">The array to pass to the uniform.</param>
-    void SetUniformBVec2Array (const std::string& uniformName, int count, const glm::bvec2* values);
+#pragma region Int / IVec Uniform Setters
 
-    ///<summary>
-    ///Sets a <c>bvec3</c> array uniform in the program.
-    ///</summary>
-    ///<param name="uniformName">The name of the uniform as it appears in the shader code.</param>
-    ///<param name="values">The array to pass to the uniform.</param>
-    void SetUniformBVec3Array (const std::string& uniformName, int count, const glm::bvec3* values);
+    /// <summary>
+    /// Sets an integer uniform in the program.
+    /// </summary>
+    /// <param name="uniformName">The name of the uniform as it appears in the shader code.</param>
+    /// <param name="value">The value to pass to the uniform.</param>
+    void SetUniformInt (const std::string& uniformName, GLint value) const;
 
-    ///<summary>
-    ///Sets a <c>bvec4</c> array uniform in the program.
-    ///</summary>
-    ///<param name="uniformName">The name of the uniform as it appears in the shader code.</param>
-    ///<param name="values">The array to pass to the uniform.</param>
-    void SetUniformBVec4Array (const std::string& uniformName, int count, const glm::bvec4* values);
+    /// <summary>
+    /// Sets an ivec2 uniform in the program.
+    /// </summary>
+    /// <param name="uniformName">The name of the uniform as it appears in the shader code.</param>
+    /// <param name="vector">The vector to pass to the uniform.</param>
+    void SetUniformIVec2 (const std::string& uniformName, const glm::ivec2& vector) const;
 
-    ///<summary>
-    ///Sets an integer uniform in the program.
-    ///</summary>
-    ///<param name="uniformName">The name of the uniform as it appears in the shader code.</param>
-    ///<param name="value">The value to pass to the uniform.</param>
-    void SetUniformInt (const std::string& uniformName, int value);
+    /// <summary>
+    /// Sets an ivec3 uniform in the program.
+    /// </summary>
+    /// <param name="uniformName">The name of the uniform as it appears in the shader code.</param>
+    /// <param name="vector">The vector to pass to the uniform.</param>
+    void SetUniformIVec3 (const std::string& uniformName, const glm::ivec3& vector) const;
 
-    ///<summary>
-    ///Sets an <c>ivec2</c> uniform in the program.
-    ///</summary>
-    ///<param name="uniformName">The name of the uniform as it appears in the shader code.</param>
-    ///<param name="value">The value to pass to the uniform.</param>
-    void SetUniformIVec2 (const std::string& uniformName, const glm::ivec2& value);
+    /// <summary>
+    /// Sets an ivec4 uniform in the program.
+    /// </summary>
+    /// <param name="uniformName">The name of the uniform as it appears in the shader code.</param>
+    /// <param name="vector">The vector to pass to the uniform.</param>
+    void SetUniformIVec4 (const std::string& uniformName, const glm::ivec4& vector) const;
 
-    ///<summary>
-    ///Sets an <c>ivec3</c> uniform in the program.
-    ///</summary>
-    ///<param name="uniformName">The name of the uniform as it appears in the shader code.</param>
-    ///<param name="value">The value to pass to the uniform.</param>
-    void SetUniformIVec3 (const std::string& uniformName, const glm::ivec3& value);
+#pragma endregion
 
-    ///<summary>
-    ///Sets an <c>ivec4</c> uniform in the program.
-    ///</summary>
-    ///<param name="uniformName">The name of the uniform as it appears in the shader code.</param>
-    ///<param name="value">The value to pass to the uniform.</param>
-    void SetUniformIVec4 (const std::string& uniformName, const glm::ivec4& value);
+#pragma region UInt / UVec Uniform Setters
 
-    ///<summary>
-    ///Sets an integer array uniform in the program.
-    ///</summary>
-    ///<param name="uniformName">The name of the uniform as it appears in the shader code.</param>
-    ///<param name="values">The array to pass to the uniform.</param>
-    void SetUniformIntArray (const std::string& uniformName, int count, const int* values);
+    /// <summary>
+    /// Sets an unsigned integer uniform in the program.
+    /// </summary>
+    /// <param name="uniformName">The name of the uniform as it appears in the shader code.</param>
+    /// <param name="value">The value to pass to the uniform.</param>
+    void SetUniformUInt (const std::string& uniformName, GLuint value) const;
 
-    ///<summary>
-    ///Sets an <c>ivec2</c> array uniform in the program.
-    ///</summary>
-    ///<param name="uniformName">The name of the uniform as it appears in the shader code.</param>
-    ///<param name="values">The array to pass to the uniform.</param>
-    void SetUniformIVec2Array (const std::string& uniformName, int count, const glm::ivec2* values);
+    /// <summary>
+    /// Sets an uvec2 uniform in the program.
+    /// </summary>
+    /// <param name="uniformName">The name of the uniform as it appears in the shader code.</param>
+    /// <param name="vector">The vector to pass to the uniform.</param>
+    void SetUniformUVec2 (const std::string& uniformName, const glm::uvec2& vector) const;
 
-    ///<summary>
-    ///Sets an <c>ivec3</c> array uniform in the program.
-    ///</summary>
-    ///<param name="uniformName">The name of the uniform as it appears in the shader code.</param>
-    ///<param name="values">The array to pass to the uniform.</param>
-    void SetUniformIVec3Array (const std::string& uniformName, int count, const glm::ivec3* values);
+    /// <summary>
+    /// Sets an uvec3 uniform in the program.
+    /// </summary>
+    /// <param name="uniformName">The name of the uniform as it appears in the shader code.</param>
+    /// <param name="vector">The vector to pass to the uniform.</param>
+    void SetUniformUVec3 (const std::string& uniformName, const glm::uvec3& vector) const;
 
-    ///<summary>
-    ///Sets an <c>ivec4</c> array uniform in the program.
-    ///</summary>
-    ///<param name="uniformName">The name of the uniform as it appears in the shader code.</param>
-    ///<param name="values">The array to pass to the uniform.</param>
-    void SetUniformIVec4Array (const std::string& uniformName, int count, const glm::ivec4* values);
+    /// <summary>
+    /// Sets an uvec4 uniform in the program.
+    /// </summary>
+    /// <param name="uniformName">The name of the uniform as it appears in the shader code.</param>
+    /// <param name="vector">The vector to pass to the uniform.</param>
+    void SetUniformUVec4 (const std::string& uniformName, const glm::uvec4& vector) const;
 
-    ///<summary>
-    ///Sets an unsigned integer uniform in the program.
-    ///</summary>
-    ///<param name="uniformName">The name of the uniform as it appears in the shader code.</param>
-    ///<param name="value">The value to pass to the uniform.</param>
-    void SetUniformUnsignedInt (const std::string& uniformName, unsigned int value);
+#pragma endregion
 
-    ///<summary>
-    ///Sets a <c>uvec2</c> uniform in the program.
-    ///</summary>
-    ///<param name="uniformName">The name of the uniform as it appears in the shader code.</param>
-    ///<param name="value">The value to pass to the uniform.</param>
-    void SetUniformUVec2 (const std::string& uniformName, const glm::uvec2& value);
+#pragma region Float / Vec Array Uniform Setters
 
-    ///<summary>
-    ///Sets a <c>uvec3</c> uniform in the program.
-    ///</summary>
-    ///<param name="uniformName">The name of the uniform as it appears in the shader code.</param>
-    ///<param name="value">The value to pass to the uniform.</param>
-    void SetUniformUVec3 (const std::string& uniformName, const glm::uvec3& value);
+    /// <summary>
+    /// Sets an array uniform of floating point values in the program.
+    /// </summary>
+    /// <param name="uniformName">The name of the uniform as it appears in the shader code.</param>
+    /// <param name="array">The array to pass to the uniform.</param>
+    void SetUniformFloatArray (const std::string& uniformName, const std::vector<GLfloat>& array) const;
 
-    ///<summary>
-    ///Sets a <c>uvec4</c> uniform in the program.
-    ///</summary>
-    ///<param name="uniformName">The name of the uniform as it appears in the shader code.</param>
-    ///<param name="value">The value to pass to the uniform.</param>
-    void SetUniformUVec4 (const std::string& uniformName, const glm::uvec4& value);
+    /// <summary>
+    /// Sets an array uniform of vec2's in the program.
+    /// </summary>
+    /// <param name="uniformName">The name of the uniform as it appears in the shader code.</param>
+    /// <param name="array">The array to pass to the uniform.</param>
+    void SetUniformVec2Array (const std::string& uniformName, const std::vector<glm::vec2>& array) const;
 
-    ///<summary>
-    ///Sets an unsigned integer array uniform in the program.
-    ///</summary>
-    ///<param name="uniformName">The name of the uniform as it appears in the shader code.</param>
-    ///<param name="values">The array to pass to the uniform.</param>
-    void SetUniformUnsignedIntArray (const std::string& uniformName, int count, const unsigned int* values);
+    /// <summary>
+    /// Sets an array uniform of vec3's in the program.
+    /// </summary>
+    /// <param name="uniformName">The name of the uniform as it appears in the shader code.</param>
+    /// <param name="array">The array to pass to the uniform.</param>
+    void SetUniformVec3Array (const std::string& uniformName, const std::vector<glm::vec3>& array) const;
 
-    ///<summary>
-    ///Sets a <c>uvec2</c> array uniform in the program.
-    ///</summary>
-    ///<param name="uniformName">The name of the uniform as it appears in the shader code.</param>
-    ///<param name="values">The array to pass to the uniform.</param>
-    void SetUniformUVec2Array (const std::string& uniformName, int count, const glm::uvec2* values);
+    /// <summary>
+    /// Sets an array uniform of vec4's in the program.
+    /// </summary>
+    /// <param name="uniformName">The name of the uniform as it appears in the shader code.</param>
+    /// <param name="array">The array to pass to the uniform.</param>
+    void SetUniformVec4Array (const std::string& uniformName, const std::vector<glm::vec4>& array) const;
 
-    ///<summary>
-    ///Sets a <c>uvec3</c> array uniform in the program.
-    ///</summary>
-    ///<param name="uniformName">The name of the uniform as it appears in the shader code.</param>
-    ///<param name="values">The array to pass to the uniform.</param>
-    void SetUniformUVec3Array (const std::string& uniformName, int count, const glm::uvec3* values);
+#pragma endregion
 
-    ///<summary>
-    ///Sets a <c>uvec4</c> array uniform in the program.
-    ///</summary>
-    ///<param name="uniformName">The name of the uniform as it appears in the shader code.</param>
-    ///<param name="values">The array to pass to the uniform.</param>
-    void SetUniformUVec4Array (const std::string& uniformName, int count, const glm::uvec4* values);
+#pragma region Int / IVec Array Uniform Setters
 
-    ///<summary>
-    ///Sets a floating-point uniform in the program.
-    ///</summary>
-    ///<param name="uniformName">The name of the uniform as it appears in the shader code.</param>
-    ///<param name="value">The value to pass to the uniform.</param>
-    void SetUniformFloat (const std::string& uniformName, float value);
+    /// <summary>
+    /// Sets an array uniform of integer values in the program.
+    /// </summary>
+    /// <param name="uniformName">The name of the uniform as it appears in the shader code.</param>
+    /// <param name="array">The array to pass to the uniform.</param>
+    void SetUniformIntArray (const std::string& uniformName, const std::vector<GLint>& array) const;
 
-    ///<summary>
-    ///Sets a <c>vec2</c> uniform in the program.
-    ///</summary>
-    ///<param name="uniformName">The name of the uniform as it appears in the shader code.</param>
-    ///<param name="value">The value to pass to the uniform.</param>
-    void SetUniformVec2 (const std::string& uniformName, const glm::vec2& value);
+    /// <summary>
+    /// Sets an array uniform of ivec2's in the program.
+    /// </summary>
+    /// <param name="uniformName">The name of the uniform as it appears in the shader code.</param>
+    /// <param name="array">The array to pass to the uniform.</param>
+    void SetUniformIVec2Array (const std::string& uniformName, const std::vector<glm::ivec2>& array) const;
 
-    ///<summary>
-    ///Sets a <c>vec3</c> uniform in the program.
-    ///</summary>
-    ///<param name="uniformName">The name of the uniform as it appears in the shader code.</param>
-    ///<param name="value">The value to pass to the uniform.</param>
-    void SetUniformVec3 (const std::string& uniformName, const glm::vec3& value);
+    /// <summary>
+    /// Sets an array uniform of ivec3's in the program.
+    /// </summary>
+    /// <param name="uniformName">The name of the uniform as it appears in the shader code.</param>
+    /// <param name="array">The array to pass to the uniform.</param>
+    void SetUniformIVec3Array (const std::string& uniformName, const std::vector<glm::ivec3>& array) const;
 
-    ///<summary>
-    ///Sets a <c>vec4</c> uniform in the program.
-    ///</summary>
-    ///<param name="uniformName">The name of the uniform as it appears in the shader code.</param>
-    ///<param name="value">The value to pass to the uniform.</param>
-    void SetUniformVec4 (const std::string& uniformName, const glm::vec4& value);
+    /// <summary>
+    /// Sets an array uniform of ivec4's in the program.
+    /// </summary>
+    /// <param name="uniformName">The name of the uniform as it appears in the shader code.</param>
+    /// <param name="array">The array to pass to the uniform.</param>
+    void SetUniformIVec4Array (const std::string& uniformName, const std::vector<glm::ivec4>& array) const;
 
-    ///<summary>
-    ///Sets a floating-point array uniform in the program.
-    ///</summary>
-    ///<param name="uniformName">The name of the uniform as it appears in the shader code.</param>
-    ///<param name="values">The array to pass to the uniform.</param>
-    void SetUniformFloatArray (const std::string& uniformName, int count, const float* values);
+#pragma endregion
 
-    ///<summary>
-    ///Sets a <c>vec2</c> array uniform in the program.
-    ///</summary>
-    ///<param name="uniformName">The name of the uniform as it appears in the shader code.</param>
-    ///<param name="values">The array to pass to the uniform.</param>
-    void SetUniformVec2Array (const std::string& uniformName, int count, const glm::vec2* values);
+#pragma region UInt / UVec Array Uniform Setters
 
-    ///<summary>
-    ///Sets a <c>vec3</c> array uniform in the program.
-    ///</summary>
-    ///<param name="uniformName">The name of the uniform as it appears in the shader code.</param>
-    ///<param name="values">The array to pass to the uniform.</param>
-    void SetUniformVec3Array (const std::string& uniformName, int count, const glm::vec3* values);
+    /// <summary>
+    /// Sets an array uniform of unsigned integer values in the program.
+    /// </summary>
+    /// <param name="uniformName">The name of the uniform as it appears in the shader code.</param>
+    /// <param name="array">The array to pass to the uniform.</param>
+    void SetUniformUIntArray (const std::string& uniformName, const std::vector<GLuint>& array) const;
 
-    ///<summary>
-    ///Sets a <c>vec4</c> array uniform in the program.
-    ///</summary>
-    ///<param name="uniformName">The name of the uniform as it appears in the shader code.</param>
-    ///<param name="values">The array to pass to the uniform.</param>
-    void SetUniformVec4Array (const std::string& uniformName, int count, const glm::vec4* values);
+    /// <summary>
+    /// Sets an array uniform of uvec2's in the program.
+    /// </summary>
+    /// <param name="uniformName">The name of the uniform as it appears in the shader code.</param>
+    /// <param name="array">The array to pass to the uniform.</param>
+    void SetUniformUVec2Array (const std::string& uniformName, const std::vector<glm::uvec2>& array) const;
 
-    ///<summary>
-    ///Sets a <c>mat2</c> uniform in the program.
-    ///</summary>
-    ///<param name="uniformName">The name of the uniform as it appears in the shader code.</param>
-    ///<param name="value">The value to pass to the uniform.</param>
-    void SetUniformMat2 (const std::string& uniformName, const glm::mat2& value);
+    /// <summary>
+    /// Sets an array uniform of uvec3's in the program.
+    /// </summary>
+    /// <param name="uniformName">The name of the uniform as it appears in the shader code.</param>
+    /// <param name="array">The array to pass to the uniform.</param>
+    void SetUniformUVec3Array (const std::string& uniformName, const std::vector<glm::uvec3>& array) const;
 
-    ///<summary>
-    ///Sets a <c>mat2x3</c> uniform in the program.
-    ///</summary>
-    ///<param name="uniformName">The name of the uniform as it appears in the shader code.</param>
-    ///<param name="value">The value to pass to the uniform.</param>
-    void SetUniformMat2x3 (const std::string& uniformName, const glm::mat2x3& value);
+    /// <summary>
+    /// Sets an array uniform of uvec4's in the program.
+    /// </summary>
+    /// <param name="uniformName">The name of the uniform as it appears in the shader code.</param>
+    /// <param name="array">The array to pass to the uniform.</param>
+    void SetUniformUVec4Array (const std::string& uniformName, const std::vector<glm::uvec4>& array) const;
 
-    ///<summary>
-    ///Sets a <c>mat2x4</c> uniform in the program.
-    ///</summary>
-    ///<param name="uniformName">The name of the uniform as it appears in the shader code.</param>
-    ///<param name="value">The value to pass to the uniform.</param>
-    void SetUniformMat2x4 (const std::string& uniformName, const glm::mat2x4& value);
+#pragma endregion
 
-    ///<summary>
-    ///Sets a <c>mat3x2</c> uniform in the program.
-    ///</summary>
-    ///<param name="uniformName">The name of the uniform as it appears in the shader code.</param>
-    ///<param name="value">The value to pass to the uniform.</param>
-    void SetUniformMat3x2 (const std::string& uniformName, const glm::mat3x2& value);
+#pragma region Matrix Uniform Setters
 
-    ///<summary>
-    ///Sets a <c>mat3</c> uniform in the program.
-    ///</summary>
-    ///<param name="uniformName">The name of the uniform as it appears in the shader code.</param>
-    ///<param name="value">The value to pass to the uniform.</param>
-    void SetUniformMat3 (const std::string& uniformName, const glm::mat3& value);
+    /// <summary>
+    /// Sets a mat2 uniform in the program.
+    /// </summary>
+    /// <param name="uniformName">The name of the uniform as it appears in the shader code.</param>
+    /// <param name="matrix">The matrix to pass to the uniform.</param>
+    void SetUniformMat2 (const std::string& uniformName, const glm::mat2& matrix) const;
 
-    ///<summary>
-    ///Sets a <c>mat3x4</c> uniform in the program.
-    ///</summary>
-    ///<param name="uniformName">The name of the uniform as it appears in the shader code.</param>
-    ///<param name="value">The value to pass to the uniform.</param>
-    void SetUniformMat3x4 (const std::string& uniformName, const glm::mat3x4& value);
+    /// <summary>
+    /// Sets a mat2x3 uniform in the program.
+    /// </summary>
+    /// <param name="uniformName">The name of the uniform as it appears in the shader code.</param>
+    /// <param name="matrix">The matrix to pass to the uniform.</param>
+    void SetUniformMat2x3 (const std::string& uniformName, const glm::mat2x3& matrix) const;
 
-    ///<summary>
-    ///Sets a <c>mat4x2</c> uniform in the program.
-    ///</summary>
-    ///<param name="uniformName">The name of the uniform as it appears in the shader code.</param>
-    ///<param name="value">The value to pass to the uniform.</param>
-    void SetUniformMat4x2 (const std::string& uniformName, const glm::mat4x2& value);
+    /// <summary>
+    /// Sets a mat2x4 uniform in the program.
+    /// </summary>
+    /// <param name="uniformName">The name of the uniform as it appears in the shader code.</param>
+    /// <param name="matrix">The matrix to pass to the uniform.</param>
+    void SetUniformMat2x4 (const std::string& uniformName, const glm::mat2x4& matrix) const;
 
-    ///<summary>
-    ///Sets a <c>mat4x3</c> uniform in the program.
-    ///</summary>
-    ///<param name="uniformName">The name of the uniform as it appears in the shader code.</param>
-    ///<param name="value">The value to pass to the uniform.</param>
-    void SetUniformMat4x3 (const std::string& uniformName, const glm::mat4x3& value);
+    /// <summary>
+    /// Sets a mat3x2 uniform in the program.
+    /// </summary>
+    /// <param name="uniformName">The name of the uniform as it appears in the shader code.</param>
+    /// <param name="matrix">The matrix to pass to the uniform.</param>
+    void SetUniformMat3x2 (const std::string& uniformName, const glm::mat3x2& matrix) const;
 
-    ///<summary>
-    ///Sets a <c>mat4</c> uniform in the program.
-    ///</summary>
-    ///<param name="uniformName">The name of the uniform as it appears in the shader code.</param>
-    ///<param name="value">The value to pass to the uniform.</param>
-    void SetUniformMat4 (const std::string& uniformName, const glm::mat4& value);
+    /// <summary>
+    /// Sets a mat3 uniform in the program.
+    /// </summary>
+    /// <param name="uniformName">The name of the uniform as it appears in the shader code.</param>
+    /// <param name="matrix">The matrix to pass to the uniform.</param>
+    void SetUniformMat3 (const std::string& uniformName, const glm::mat3& matrix) const;
 
-    ///<summary>
-    ///Sets a sampler uniform in the program.
-    ///</summary>
-    ///<param name="uniformName">The name of the uniform as it appears in the shader code.</param>
-    ///<param name="value">The value to pass to the uniform.</param>
-    void SetUniformSampler (const std::string& uniformName, int value);
+    /// <summary>
+    /// Sets a mat3x4 uniform in the program.
+    /// </summary>
+    /// <param name="uniformName">The name of the uniform as it appears in the shader code.</param>
+    /// <param name="matrix">The matrix to pass to the uniform.</param>
+    void SetUniformMat3x4 (const std::string& uniformName, const glm::mat3x4& matrix) const;
 
-    ///<summary>
-    ///Sets the program to the active program.
-    ///</summary>
+    /// <summary>
+    /// Sets a mat4x2 uniform in the program.
+    /// </summary>
+    /// <param name="uniformName">The name of the uniform as it appears in the shader code.</param>
+    /// <param name="matrix">The matrix to pass to the uniform.</param>
+    void SetUniformMat4x2 (const std::string& uniformName, const glm::mat4x2& matrix) const;
+
+    /// <summary>
+    /// Sets a mat4x3 uniform in the program.
+    /// </summary>
+    /// <param name="uniformName">The name of the uniform as it appears in the shader code.</param>
+    /// <param name="matrix">The matrix to pass to the uniform.</param>
+    void SetUniformMat4x3 (const std::string& uniformName, const glm::mat4x3& matrix) const;
+
+    /// <summary>
+    /// Sets a mat4 uniform in the program.
+    /// </summary>
+    /// <param name="uniformName">The name of the uniform as it appears in the shader code.</param>
+    /// <param name="matrix">The matrix to pass to the uniform.</param>
+    void SetUniformMat4 (const std::string& uniformName, const glm::mat4& matrix) const;
+
+#pragma endregion
+
+#pragma region Matrix Array Uniform Setters
+
+    /// <summary>
+    /// Sets an array uniform of mat2's in the program.
+    /// </summary>
+    /// <param name="uniformName">The name of the uniform as it appears in the shader code.</param>
+    /// <param name="array">The array to pass to the uniform.</param>
+    void SetUniformMat2Array (const std::string& uniformName, const std::vector<glm::mat2>& array) const;
+
+    /// <summary>
+    /// Sets an array uniform of mat2x3's in the program.
+    /// </summary>
+    /// <param name="uniformName">The name of the uniform as it appears in the shader code.</param>
+    /// <param name="array">The array to pass to the uniform.</param>
+    void SetUniformMat2x3Array (const std::string& uniformName, const std::vector<glm::mat2x3>& array) const;
+
+    /// <summary>
+    /// Sets an array uniform of mat2x4's in the program.
+    /// </summary>
+    /// <param name="uniformName">The name of the uniform as it appears in the shader code.</param>
+    /// <param name="array">The array to pass to the uniform.</param>
+    void SetUniformMat2x4Array (const std::string& uniformName, const std::vector<glm::mat2x4>& array) const;
+
+    /// <summary>
+    /// Sets an array uniform of mat3x2's in the program.
+    /// </summary>
+    /// <param name="uniformName">The name of the uniform as it appears in the shader code.</param>
+    /// <param name="array">The array to pass to the uniform.</param>
+    void SetUniformMat3x2Array (const std::string& uniformName, const std::vector<glm::mat3x2>& array) const;
+
+    /// <summary>
+    /// Sets an array uniform of mat3's in the program.
+    /// </summary>
+    /// <param name="uniformName">The name of the uniform as it appears in the shader code.</param>
+    /// <param name="array">The array to pass to the uniform.</param>
+    void SetUniformMat3Array (const std::string& uniformName, const std::vector<glm::mat3>& array) const;
+
+    /// <summary>
+    /// Sets an array uniform of mat3x4's in the program.
+    /// </summary>
+    /// <param name="uniformName">The name of the uniform as it appears in the shader code.</param>
+    /// <param name="array">The array to pass to the uniform.</param>
+    void SetUniformMat3x4Array (const std::string& uniformName, const std::vector<glm::mat3x4>& array) const;
+
+    /// <summary>
+    /// Sets an array uniform of mat4x2's in the program.
+    /// </summary>
+    /// <param name="uniformName">The name of the uniform as it appears in the shader code.</param>
+    /// <param name="array">The array to pass to the uniform.</param>
+    void SetUniformMat4x2Array (const std::string& uniformName, const std::vector<glm::mat4x2>& array) const;
+
+    /// <summary>
+    /// Sets an array uniform of mat4x3's in the program.
+    /// </summary>
+    /// <param name="uniformName">The name of the uniform as it appears in the shader code.</param>
+    /// <param name="array">The array to pass to the uniform.</param>
+    void SetUniformMat4x3Array (const std::string& uniformName, const std::vector<glm::mat4x3>& array) const;
+
+    /// <summary>
+    /// Sets an array uniform of mat4's in the program.
+    /// </summary>
+    /// <param name="uniformName">The name of the uniform as it appears in the shader code.</param>
+    /// <param name="array">The array to pass to the uniform.</param>
+    void SetUniformMat4Array (const std::string& uniformName, const std::vector<glm::mat4>& array) const;
+
+#pragma endregion
+
+    /// <summary>
+    /// Sets a sampler uniform in the program.
+    /// </summary>
+    /// <param name="uniformName">The name of the uniform as it appears in the shader code.</param>
+    /// <param name="samplerID">The sampler ID to pass to the uniform.</param>
+    void SetUniformSampler (const std::string& uniformName, GLint samplerID) const;
+
+    /// <summary>
+    /// Sets the program to the active program.
+    /// </summary>
     void UseProgram () const;
 };
