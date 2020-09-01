@@ -7,16 +7,10 @@
 
 #include <glm/glm.hpp>
 
-#ifdef SHADERPROGRAM_EXPORTS
-#define SHADERPROGRAM_API __declspec(dllexport)
-#else
-#define SHADERPROGRAM_API __declspec(dllimport)
-#endif
-
 /// <summary>
 /// Encapsulates a GLSL shader program.
 /// </summary>
-class SHADERPROGRAM_API ShaderProgram
+class ShaderProgram
 {
 private:
     GLuint programID;

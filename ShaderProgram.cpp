@@ -7,7 +7,7 @@
 //move
 #include <utility>
 
-#include <glm/gtc/type_ptr.inl>
+#include <glm/gtc/type_ptr.hpp>
 
 void ShaderProgram::LoadSource (GLuint shaderID, const std::string& filename) const
 {
