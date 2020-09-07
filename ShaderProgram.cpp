@@ -1,10 +1,7 @@
 #include "ShaderProgram.h"
 
-//exit
-#include <cstdlib>
 #include <fstream>
 #include <iostream>
-//move
 #include <utility>
 
 #include <glm/gtc/type_ptr.hpp>
@@ -15,8 +12,8 @@ void ShaderProgram::LoadSource (GLuint shaderID, const std::string& filename) co
 
     if (!stream.is_open ())
     {
-        std::cerr << "Could not open shader file: " << filename << std::endl;
-        std::exit (EXIT_FAILURE);
+        std::cerr << "Could not open shader file: " << filename << "\n";
+        exit (EXIT_FAILURE);
     }
 
     std::vector<std::string> lineVector;
@@ -26,7 +23,7 @@ void ShaderProgram::LoadSource (GLuint shaderID, const std::string& filename) co
         lineVector.emplace_back (std::move (line));
 
     size_t linesCount = lineVector.size ();
-    GLchar** cLineArray = new GLchar* [linesCount];
+    GLchar** cLineArray = new GLchar * [linesCount];
 
     for (size_t i = 0; i < linesCount; i++)
     {
@@ -61,7 +58,7 @@ void ShaderProgram::CompileSource (GLuint shaderID, const std::string& filename)
         glGetShaderInfoLog (shaderID, logLength, NULL, log);
         std::cerr << "Error compiling shader: " << filename << "\n" << log << "\n";
         delete[] log;
-        std::exit (EXIT_FAILURE);
+        exit (EXIT_FAILURE);
     }
 }
 
@@ -87,7 +84,7 @@ void ShaderProgram::LinkBasicShaderProgram () const
         glGetProgramInfoLog (programID, logLength, NULL, log);
         std::cerr << "Error linking shader: " << programName << "\n" << log << "\n";
         delete[] log;
-        std::exit (EXIT_FAILURE);
+        exit (EXIT_FAILURE);
     }
 }
 
@@ -116,7 +113,7 @@ void ShaderProgram::LinkShaderProgramWithGeometry () const
         glGetProgramInfoLog (programID, logLength, NULL, log);
         std::cerr << "Error linking shader: " << programName << "\n" << log << "\n";
         delete[] log;
-        std::exit (EXIT_FAILURE);
+        exit (EXIT_FAILURE);
     }
 }
 

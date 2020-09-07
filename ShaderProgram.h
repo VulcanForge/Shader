@@ -5,10 +5,10 @@
 
 #include <GL/glew.h>
 
-#include <glm/glm.hpp>
+#include <glm/matrix.hpp>
 
 /// <summary>
-/// Encapsulates a GLSL shader program.
+/// Represents a GLSL shader program.
 /// </summary>
 class ShaderProgram
 {
