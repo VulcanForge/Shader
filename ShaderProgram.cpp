@@ -23,7 +23,7 @@ void ShaderProgram::LoadSource (GLuint shaderID, const std::string& filename) co
         lineVector.emplace_back (std::move (line));
 
     size_t linesCount = lineVector.size ();
-    GLchar** cLineArray = new GLchar * [linesCount];
+    GLchar** cLineArray = new GLchar* [linesCount];
 
     for (size_t i = 0; i < linesCount; i++)
     {
@@ -124,94 +124,94 @@ ShaderProgram::~ShaderProgram ()
 
 #pragma region Factory Constructors
 
-ShaderProgram ShaderProgram::CreateBasicShaderProgram (const std::string& programName)
+std::unique_ptr<ShaderProgram> ShaderProgram::CreateBasicShaderProgram (const std::string& programName)
 {
-    ShaderProgram program;
+    std::unique_ptr<ShaderProgram> program (new ShaderProgram ());
 
-    program.programID = glCreateProgram ();
-    program.vertexShaderID = glCreateShader (GL_VERTEX_SHADER);
-    program.fragmentShaderID = glCreateShader (GL_FRAGMENT_SHADER);
+    program->programID = glCreateProgram ();
+    program->vertexShaderID = glCreateShader (GL_VERTEX_SHADER);
+    program->fragmentShaderID = glCreateShader (GL_FRAGMENT_SHADER);
 
-    program.programName = programName;
-    program.vertexFilename = programName + ".vert";
-    program.fragmentFilename = programName + ".frag";
+    program->programName = programName;
+    program->vertexFilename = programName + ".vert";
+    program->fragmentFilename = programName + ".frag";
 
-    program.LoadSource (program.vertexShaderID, program.vertexFilename);
-    program.CompileSource (program.vertexShaderID, program.vertexFilename);
-    program.LoadSource (program.fragmentShaderID, program.fragmentFilename);
-    program.CompileSource (program.fragmentShaderID, program.fragmentFilename);
-    program.LinkBasicShaderProgram ();
+    program->LoadSource (program->vertexShaderID, program->vertexFilename);
+    program->CompileSource (program->vertexShaderID, program->vertexFilename);
+    program->LoadSource (program->fragmentShaderID, program->fragmentFilename);
+    program->CompileSource (program->fragmentShaderID, program->fragmentFilename);
+    program->LinkBasicShaderProgram ();
 
     return program;
 }
 
-ShaderProgram ShaderProgram::CreateBasicShaderProgramWithNames (const std::string& programName, const std::string& vertexFilename, const std::string& fragmentFilename)
+std::unique_ptr<ShaderProgram> ShaderProgram::CreateBasicShaderProgramWithNames (const std::string& programName, const std::string& vertexFilename, const std::string& fragmentFilename)
 {
-    ShaderProgram program;
+    std::unique_ptr<ShaderProgram> program (new ShaderProgram ());
 
-    program.programID = glCreateProgram ();
-    program.vertexShaderID = glCreateShader (GL_VERTEX_SHADER);
-    program.fragmentShaderID = glCreateShader (GL_FRAGMENT_SHADER);
+    program->programID = glCreateProgram ();
+    program->vertexShaderID = glCreateShader (GL_VERTEX_SHADER);
+    program->fragmentShaderID = glCreateShader (GL_FRAGMENT_SHADER);
 
-    program.programName = programName;
-    program.vertexFilename = vertexFilename;
-    program.fragmentFilename = fragmentFilename;
+    program->programName = programName;
+    program->vertexFilename = vertexFilename;
+    program->fragmentFilename = fragmentFilename;
 
-    program.LoadSource (program.vertexShaderID, vertexFilename);
-    program.CompileSource (program.vertexShaderID, vertexFilename);
-    program.LoadSource (program.fragmentShaderID, fragmentFilename);
-    program.CompileSource (program.fragmentShaderID, fragmentFilename);
-    program.LinkBasicShaderProgram ();
+    program->LoadSource (program->vertexShaderID, vertexFilename);
+    program->CompileSource (program->vertexShaderID, vertexFilename);
+    program->LoadSource (program->fragmentShaderID, fragmentFilename);
+    program->CompileSource (program->fragmentShaderID, fragmentFilename);
+    program->LinkBasicShaderProgram ();
 
     return program;
 }
 
-ShaderProgram ShaderProgram::CreateShaderProgramWithGeometry (const std::string& programName)
+std::unique_ptr<ShaderProgram> ShaderProgram::CreateShaderProgramWithGeometry (const std::string& programName)
 {
-    ShaderProgram program;
+    std::unique_ptr<ShaderProgram> program (new ShaderProgram ());
 
-    program.programID = glCreateProgram ();
-    program.vertexShaderID = glCreateShader (GL_VERTEX_SHADER);
-    program.geometryShaderID = glCreateShader (GL_GEOMETRY_SHADER);
-    program.fragmentShaderID = glCreateShader (GL_FRAGMENT_SHADER);
+    program->programID = glCreateProgram ();
+    program->vertexShaderID = glCreateShader (GL_VERTEX_SHADER);
+    program->geometryShaderID = glCreateShader (GL_GEOMETRY_SHADER);
+    program->fragmentShaderID = glCreateShader (GL_FRAGMENT_SHADER);
 
-    program.programName = programName;
-    program.vertexFilename = programName + ".vert";
-    program.geometryFilename = programName + ".geom";
-    program.fragmentFilename = programName + ".frag";
+    program->programName = programName;
+    program->vertexFilename = programName + ".vert";
+    program->geometryFilename = programName + ".geom";
+    program->fragmentFilename = programName + ".frag";
 
-    program.LoadSource (program.vertexShaderID, program.vertexFilename);
-    program.CompileSource (program.vertexShaderID, program.vertexFilename);
-    program.LoadSource (program.geometryShaderID, program.geometryFilename);
-    program.CompileSource (program.geometryShaderID, program.geometryFilename);
-    program.LoadSource (program.fragmentShaderID, program.fragmentFilename);
-    program.CompileSource (program.fragmentShaderID, program.fragmentFilename);
-    program.LinkShaderProgramWithGeometry ();
+    program->LoadSource (program->vertexShaderID, program->vertexFilename);
+    program->CompileSource (program->vertexShaderID, program->vertexFilename);
+    program->LoadSource (program->geometryShaderID, program->geometryFilename);
+    program->CompileSource (program->geometryShaderID, program->geometryFilename);
+    program->LoadSource (program->fragmentShaderID, program->fragmentFilename);
+    program->CompileSource (program->fragmentShaderID, program->fragmentFilename);
+    program->LinkShaderProgramWithGeometry ();
 
     return program;
 }
 
-ShaderProgram ShaderProgram::CreateShaderProgramWithGeometryWithNames (const std::string& programName, const std::string& vertexFilename, const std::string& geometryFilename, const std::string& fragmentFilename)
+std::unique_ptr<ShaderProgram> ShaderProgram::CreateShaderProgramWithGeometryWithNames (const std::string& programName, const std::string& vertexFilename, const std::string& geometryFilename, const std::string& fragmentFilename)
 {
-    ShaderProgram program;
+    std::unique_ptr<ShaderProgram> program (new ShaderProgram ());
 
-    program.programID = glCreateProgram ();
-    program.vertexShaderID = glCreateShader (GL_VERTEX_SHADER);
-    program.geometryShaderID = glCreateShader (GL_GEOMETRY_SHADER);
-    program.fragmentShaderID = glCreateShader (GL_FRAGMENT_SHADER);
+    program->programID = glCreateProgram ();
+    program->vertexShaderID = glCreateShader (GL_VERTEX_SHADER);
+    program->geometryShaderID = glCreateShader (GL_GEOMETRY_SHADER);
+    program->fragmentShaderID = glCreateShader (GL_FRAGMENT_SHADER);
 
-    program.programName = programName;
-    program.vertexFilename = vertexFilename;
-    program.geometryFilename = geometryFilename;
-    program.fragmentFilename = fragmentFilename;
+    program->programName = programName;
+    program->vertexFilename = vertexFilename;
+    program->geometryFilename = geometryFilename;
+    program->fragmentFilename = fragmentFilename;
 
-    program.LoadSource (program.vertexShaderID, vertexFilename);
-    program.CompileSource (program.vertexShaderID, vertexFilename);
-    program.LoadSource (program.geometryShaderID, geometryFilename);
-    program.CompileSource (program.geometryShaderID, geometryFilename);
-    program.LoadSource (program.fragmentShaderID, fragmentFilename);
-    program.CompileSource (program.fragmentShaderID, fragmentFilename);
-    program.LinkShaderProgramWithGeometry ();
+    program->LoadSource (program->vertexShaderID, vertexFilename);
+    program->CompileSource (program->vertexShaderID, vertexFilename);
+    program->LoadSource (program->geometryShaderID, geometryFilename);
+    program->CompileSource (program->geometryShaderID, geometryFilename);
+    program->LoadSource (program->fragmentShaderID, fragmentFilename);
+    program->CompileSource (program->fragmentShaderID, fragmentFilename);
+    program->LinkShaderProgramWithGeometry ();
 
     return program;
 }

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -28,6 +29,8 @@ private:
     void LinkBasicShaderProgram () const;
     void LinkShaderProgramWithGeometry () const;
 
+    ShaderProgram () = default;
+
 public:
     ~ShaderProgram ();
 
@@ -39,7 +42,7 @@ public:
     /// <param name="programName">
     /// The name of the program. The vertex shader file should be named programName + ".vert" and the fragment shader file should be named programName + ".frag".
     /// </param>
-    static ShaderProgram CreateBasicShaderProgram (const std::string& programName);
+    static std::unique_ptr<ShaderProgram> CreateBasicShaderProgram (const std::string& programName);
 
     /// <summary>
     /// Creates a shader program with vertex and fragment shaders, with custom filenames.
@@ -47,7 +50,7 @@ public:
     /// <param name="programName">The name of the program.</param>
     /// <param name="vertexFilename">The vertex shader file.</param>
     /// <param name="fragmentFilename">The fragment shader file.</param>
-    static ShaderProgram CreateBasicShaderProgramWithNames (const std::string& programName, const std::string& vertexFilename, const std::string& fragmentFilename);
+    static std::unique_ptr<ShaderProgram> CreateBasicShaderProgramWithNames (const std::string& programName, const std::string& vertexFilename, const std::string& fragmentFilename);
 
     /// <summary>
     /// Creates a shader program with vertex, geometry, and fragment shaders.
@@ -55,7 +58,7 @@ public:
     /// <param name="programName">
     /// The name of the program. The vertex shader file should be named programName + ".vert", the geometry shader file should be  named programName + ".geom, and the fragment shader file should be named programName + ".frag".
     /// </param>
-    static ShaderProgram CreateShaderProgramWithGeometry (const std::string& programName);
+    static std::unique_ptr<ShaderProgram> CreateShaderProgramWithGeometry (const std::string& programName);
 
     /// <summary>
     /// Creates a shader program with vertex, geometry, and fragment shaders, with custom filenames.
@@ -64,7 +67,7 @@ public:
     /// <param name="vertexFilename">The vertex shader file.</param>
     /// <param name="geometryFilename">The geometry shader file.</param>
     /// <param name="fragmentFilename">The fragment shader file.</param>
-    static ShaderProgram CreateShaderProgramWithGeometryWithNames (const std::string& programName, const std::string& vertexFilename, const std::string& geometryFilename, const std::string& fragmentFilename);
+    static std::unique_ptr<ShaderProgram> CreateShaderProgramWithGeometryWithNames (const std::string& programName, const std::string& vertexFilename, const std::string& geometryFilename, const std::string& fragmentFilename);
 
 #pragma endregion
 
